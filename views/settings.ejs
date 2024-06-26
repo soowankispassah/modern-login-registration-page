@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <%- include('navbar') %>
+    <div class="container">
+        <h2>Settings</h2>
+        <div class="form-container">
+            <form id="updateDetailsForm">
+                <h3>Change Details</h3>
+                <div class="input-group">
+                    <label for="username">Change Username</label>
+                    <input type="text" id="username" required>
+                </div>
+                <div class="input-group">
+                    <label for="firstName">Change First Name</label>
+                    <input type="text" id="firstName">
+                </div>
+                <div class="input-group">
+                    <label for="lastName">Change Last Name</label>
+                    <input type="text" id="lastName">
+                </div>
+                <button type="submit">Update Details</button>
+            </form>
+        </div>
+        <div class="form-container">
+            <form id="updatePasswordForm">
+                <h3>Change Password</h3>
+                <div class="input-group">
+                    <label for="currentPassword">Current Password</label>
+                    <input type="password" id="currentPassword" required>
+                </div>
+                <div class="input-group">
+                    <label for="newPassword">New Password</label>
+                    <input type="password" id="newPassword" required>
+                </div>
+                <div class="input-group">
+                    <label for="confirmPassword">Confirm New Password</label>
+                    <input type="password" id="confirmPassword" required>
+                </div>
+                <button type="submit">Update Password</button>
+            </form>
+        </div>
+        <div class="form-container">
+            <h3>Delete Account</h3>
+            <button id="deleteAccountButton" class="delete-button">Delete Account</button>
+        </div>
+    </div>
+    <script>
+        async function fetchProfileData() {
+            const response = await fetch('/profile-data');
+            if (response.ok) {
+                const data = await response.json();
+                document.getElementById('username').value = data.username || '';
+                document.getElementById('firstName').value = data.firstName || '';
+                document.getElementById('lastName').value = data.lastName || '';
+            } else {
+                alert('Error fetching profile data');
+            }
+        }
+
+        document.getElementById('updateDetailsForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+
+            const response = await fetch('/update-details', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, firstName, lastName })
+            });
+
+            const message = await response.text();
+            alert(message);
+        });
+
+        document.getElementById('updatePasswordForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (newPassword !== confirmPassword) {
+                alert('Passwords do not match!');
+                return;
+            }
+
+            const response = await fetch('/update-password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ currentPassword, newPassword })
+            });
+
+            const message = await response.text();
+            alert(message);
+        });
+
+        document.getElementById('deleteAccountButton').addEventListener('click', async function(event) {
+            event.preventDefault();
+            const confirmDelete = confirm('Are you sure you want to delete your account? This action cannot be undone.');
+            if (confirmDelete) {
+                const response = await fetch('/delete-account', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.redirected) {
+                    window.location.href = response.url;
+                } else {
+                    const message = await response.text();
+                    alert(message);
+                }
+            }
+        });
+
+        fetchProfileData();
+    </script>
+</body>
+</html>

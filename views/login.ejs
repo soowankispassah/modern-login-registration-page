@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <%- include('navbar') %>
+    <div class="container">
+        <div class="form-container">
+            <h2>Login</h2>
+            <form id="loginForm">
+                <div class="input-group">
+                    <label for="loginEmail">Email</label>
+                    <input type="email" id="loginEmail" required>
+                </div>
+                <div class="input-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" required>
+                </div>
+                <button type="submit">Login</button>
+                <div class="text-links">
+                    <a href="#" id="forgotPassword">Forgot Password?</a>
+                    <p>Don't have an account? <a href="/register">Register here</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script>
+        document.getElementById('forgotPassword').addEventListener('click', function(event) {
+            event.preventDefault();
+            const email = prompt('Please enter your email address:');
+            if (email) {
+                fetch('/forgot-password', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email })
+                }).then(response => response.text())
+                  .then(message => alert(message))
+                  .catch(err => console.error('Error:', err));
+            }
+        });
+
+        document.getElementById('loginForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            const response = await fetch('/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email, password })
+            });
+
+            if (response.redirected) {
+                window.location.href = response.url;
+            } else {
+                const message = await response.text();
+                alert(message);
+            }
+        });
+    </script>
+</body>
+</html>

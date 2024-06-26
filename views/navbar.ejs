@@ -1,0 +1,40 @@
+<nav class="navbar">
+    <div class="navbar-container">
+        <div class="navbar-left">
+            <a href="/" class="navbar-item">Home</a>
+        </div>
+        <div class="navbar-right">
+            <% if (user) { %>
+                <span class="navbar-item desktop-welcome"><%= user.username %></span>
+            <% } %>
+            <div class="hamburger-menu" id="hamburgerMenu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <div class="dropdown-menu" id="dropdownMenu">
+                <% if (user) { %>
+                    <a href="/profile" class="dropdown-item"><%= user.username %></a>
+                    <a href="/settings" class="dropdown-item">Settings</a>
+                    <a href="/logout" class="dropdown-item">Logout</a>
+                <% } else { %>
+                    <a href="/login" class="dropdown-item">Login</a>
+                    <a href="/register" class="dropdown-item">Register</a>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</nav>
+<script>
+    document.getElementById('hamburgerMenu').addEventListener('click', function(event) {
+        document.getElementById('dropdownMenu').classList.toggle('show');
+        event.stopPropagation();
+    });
+
+    document.addEventListener('click', function(event) {
+        var dropdown = document.getElementById('dropdownMenu');
+        if (!dropdown.contains(event.target) && dropdown.classList.contains('show')) {
+            dropdown.classList.remove('show');
+        }
+    });
+</script>
